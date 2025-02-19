@@ -1,0 +1,58 @@
+{% extends 'nav_bar.html' %}
+{% block title %}إدارة المناطق | WhatsApp Bot{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="../static/main.css">
+<div class="container">
+    <h2>إدارة المناطق</h2>        
+
+    <h3>إضافة منطقة جديدة</h3>
+    <form action="/add_region" method="POST">
+        <input type="text" name="name" placeholder="اسم المنطقة" required>
+        <button type="submit">إضافة</button>
+    </form>
+
+    <h3>قائمة المناطق</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>اسم المنطقة</th>
+                <th>إجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for region in regions %}
+            <tr id="row-{{ region.id }}">
+                <td>{{ region.name }}</td>
+                <td>
+                    <button class="delete-btn" data-id="{{ region.id }}" onclick="deleteRegion(this)">❌ حذف</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function deleteRegion(button) {
+        let regionId = button.getAttribute("data-id");
+
+        if (confirm("هل أنت متأكد أنك تريد حذف هذه المنطقة؟")) {
+            fetch(`/delete_region/${regionId}`, { method: "DELETE" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    let row = document.getElementById(`row-${regionId}`);
+                    if (row) {
+                        row.remove();  // ✅ حذف الصف عند نجاح الحذف
+                    }
+                    alert("✅ تم حذف المنطقة بنجاح!");
+                } else {
+                    alert("❌ لم يتم العثور على المنطقة!");
+                }
+            })
+            .catch(error => console.error("❌ خطأ:", error));
+        }
+    }
+</script>
+
+{% endblock %}

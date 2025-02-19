@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | WhatsApp Bot</title>
+    <link rel="stylesheet" href="../static/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>WhatsApp Bot</h1>
+        <p>Login to your account</p>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Enter your username" required>
+            <input type="password" name="password" placeholder="Enter your password" required>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="or">or</div>
+        <button class="signup-btn" onclick="window.location.href='/signup'">Signup</button>
+    </div>
+</body>
+</html>

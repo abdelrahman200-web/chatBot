@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Dashboard | WhatsApp Bot {%endblock%}</title>
+    <link rel="stylesheet" href="../static/navbar.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="../static/img/Message Bot.png" alt="Logo">
+            <h2 style="color: white;">WhatsApp Bot</h2>
+        </div>
+        <div class="menu">
+            <a href="users">المستخدمين</a>
+            <a href="/error_code">الأخطاء</a>
+            <a href="/stats">الإحصائيات</a>
+            <a href="/main">المشاكل و التصنيفات</a>
+            <a href="/regions">المناطق</a>
+        </div>
+    </nav>
+    {%block content%}
+    {%endblock%}
+
+</body>
+{%block script%}
+
+    {%endblock%}
+</html>

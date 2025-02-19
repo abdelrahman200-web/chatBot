@@ -1,0 +1,26 @@
+{%extends 'nav_bar.html'%}
+{% block title %} إدارة المستخدمين | WhatsApp Bot {%endblock%}
+{%block content%}
+    <link rel="stylesheet" href="../static/user.css">
+    <div class="container">
+        <h2>إدارة المستخدمين</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>phone</th>
+                    <th>last_interaction</th>
+                    <th>region</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>+{{ user.phone_number }}</td>
+                    <td>{{ user.last_interaction }}</td>
+                    <td>{{ user.region_name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {%endblock%}

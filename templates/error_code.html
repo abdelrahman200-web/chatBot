@@ -1,0 +1,63 @@
+{% extends 'nav_bar.html' %}
+{% block title %}إدارة رموز الأخطاء | WhatsApp Bot{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="../static/main.css">
+<div class="container">
+    <h2>⚠️ إدارة رموز الأخطاء</h2>  
+    
+    <h3>➕ إضافة رمز خطأ جديد</h3>
+    <form action="/add_error_code" method="POST">
+        <input type="text" name="code" placeholder="رمز الخطأ" required maxlength="20">
+        <input type="text" name="action_ar" placeholder="الإجراء بالعربية" required maxlength="50">
+        <input type="text" name="action_en" placeholder="الإجراء بالإنجليزية" required maxlength="50">
+        <button type="submit">إضافة</button>
+    </form>
+    
+    <h3>📜 قائمة رموز الأخطاء</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>رمز الخطأ</th>
+                <th>الإجراء (العربية)</th>
+                <th>الإجراء (الإنجليزية)</th>
+                <th>إجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for error in error_codes %}
+            <tr id="row-{{ error.code }}">
+                <td>{{ error.code }}</td>
+                <td>{{ error.action_ar }}</td>
+                <td>{{ error.action_en }}</td>
+                <td>
+                    <button class="delete-btn" data-code="{{ error.code }}" onclick="deleteErrorCode(this)">❌ حذف</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    function deleteErrorCode(button) {
+        let errorCode = button.getAttribute("data-code");
+        if (confirm("هل أنت متأكد أنك تريد حذف رمز الخطأ؟")) {
+            fetch(`/delete_error_code/${errorCode}`, { method: "DELETE" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message.includes("تم حذف رمز الخطأ")) {
+                    let row = document.getElementById(`row-${errorCode}`);
+                    if (row) {
+                        row.remove();
+                    }
+                    alert("✅ تم حذف رمز الخطأ بنجاح!");
+                } else {
+                    alert("❌ فشل في حذف رمز الخطأ، يرجى المحاولة مرة أخرى.");
+                }
+            })
+            .catch(error => console.error("❌ خطأ:", error));
+        }
+    }
+</script>
+{% endblock %}

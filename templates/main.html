@@ -1,0 +1,136 @@
+{%extends 'nav_bar.html'%}
+{%block title%}إدارة التصنيفات والمشاكل | WhatsApp Bot{%endblock%}
+{%block content%}
+<link rel="stylesheet" href="../static/main.css">
+ <div class="container">
+        <h2>إدارة التصنيفات والمشاكل</h2>        
+        <h3>إضافة تصنيف جديد</h3>
+        <form action="/add_category" method="POST" >
+            <input type="text" name="category_name" placeholder="اسم التصنيف" required max="24">
+            <input type="text" name="category_name_en" placeholder="category name" required>
+            <input type="link" name="experts_link" placeholder="رابط مجموعة الخبراء" required>
+            <button type="submit">إضافة</button>
+        </form>
+        <h3>التصنيفات</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>المعرف</th>
+                    <th>اسم التصنيف</th>
+                    <th>Category Name</th>
+                    <th>رابط مجموعة الخبراء</th>
+                    <th>إجراء</th> <!-- ✅ عمود جديد للحذف -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr id="row-{{ category.id }}">
+                    <td>{{ category.id }}</td>
+                    <td>{{ category.category_name }}</td>
+                    <td>{{ category.category_name_en }}</td>
+                    <td><a href="{{ category.experts_link }}" target="_blank">رابط</a></td>
+                    <td>
+                        <!-- ✅ زر الحذف -->
+                        <button class="delete-btn" data-id="{{ category.id }}" onclick="deleteCategory(this)">❌ حذف</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        
+        <h3>إضافة مشكلة جديدة</h3>
+        <form action="/add_issue" method="POST" target="_self">
+            <select name="category_id" required>
+                <option value="">اختر تصنيف</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.category_name }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="issue_name" placeholder="اسم المشكلة" required maxlength="24">
+            <input type="text" name="issue_name_en" placeholder="issue name" required maxlength="24">
+            <input type="text" name="description" placeholder="وصف المشكلة" required maxlength="50">
+            <input type="text" name="description_en" placeholder="description" required maxlength="50">
+            <input type="url" name="issue_link" placeholder="رابط الحل" required>
+            <button type="submit">إضافة</button>
+        </form>        
+        <h3>المشاكل</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>المعرف</th>
+                    <th>اسم المشكلة</th>
+                    <th>issue name</th>
+                    <th>وصف المشكلة</th>
+                    <th>description</th>
+                    <th>التصنيف</th>
+                    <th>رابط الحل</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issues %}
+                <tr id="row-{{ issue.id }}">
+                    <td>{{ issue.id }}</td>
+                    <td>{{ issue.issue_name }}</td>
+                    <td>{{ issue.issue_name_en }}</td>
+                    <td>{{ issue.description }}</td>
+                    <td>{{ issue.description_en }}</td>
+                    <td>{{ issue.category_id }}</td>
+                    <td><a href="{{ issue.issue_link }}" target="_blank">رابط</a></td>
+                    <td>
+                        <!-- زر حذف -->
+                        <button class="delete-btn" data-id="{{ issue.id }}" onclick="deleteIssue(this)">❌ حذف</button>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {%endblock%}
+    {% block script %}
+    <script>
+        function deleteIssue(button) {
+            let issueId = button.getAttribute("data-id"); // ✅ جلب ID المشكلة من `data-id`
+            
+            if (confirm("هل أنت متأكد أنك تريد حذف هذه المشكلة؟")) {
+                fetch(`/issue/${issueId}`, { method: "DELETE" })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message.includes("تم حذف المشكلة")) {
+                        let row = document.getElementById(`row-${issueId}`);
+                        if (row) {
+                            row.remove(); // ✅ إزالة الصف من الجدول عند نجاح الحذف
+                        }
+                        alert("✅ تم حذف المشكلة بنجاح!");
+                    } else {
+                        alert("❌ فشل في حذف المشكلة، يرجى المحاولة مرة أخرى.");
+                    }
+                })
+                .catch(error => console.error("❌ خطأ:", error));
+            }
+        }
+        function deleteCategory(button) {
+        let categoryId = button.getAttribute("data-id"); // ✅ جلب ID التصنيف من `data-id`
+
+        if (confirm("هل أنت متأكد أنك تريد حذف هذا التصنيف؟")) {
+            fetch(`/category/${categoryId}`, { method: "DELETE" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message.includes("تم حذف التصنيف")) {
+                    let row = document.getElementById(`row-${categoryId}`);
+                    if (row) {
+                        row.remove(); // ✅ حذف الصف من الجدول عند نجاح الحذف
+                    }
+                    alert("✅ تم حذف التصنيف بنجاح!");
+                } else {
+                    alert("❌ فشل في حذف التصنيف، يرجى المحاولة مرة أخرى.");
+                }
+            })
+            .catch(error => console.error("❌ خطأ:", error));
+        }
+    }
+
+    </script>
+    {%endblock%}
