@@ -2,9 +2,9 @@ import requests
 import os
 import module as module
 import Statistics_function as Statistics
-WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
-PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
+WHATSAPP_TOKEN="EAAPZCAhZAKUeABOwP6huxR6zK33OwXUPYFTOFMwtc7vjPQtXMTdNrT050CyIwyVrqtOZBnXeQZBdpTR7bZBadnD05RAQJ4uVSvacq0zqZC9XhvMlBx1LjFkXmzTvoHbbYULykpE1DvbPh6A0ZBLHaoZAZANbpbRqqWuJZAMh9afupVfq6LxMjB9wAWP8lgiW8EOtLmgzTA3nwjsy67cjGn9U9mKNyC36QZD"
+PHONE_NUMBER_ID="556436610884697"
+VERIFY_TOKEN="1966820c6ab65959244fdc849247dd74f40ba0f632d0b19987ae2bdf292e4810"
 
 def handle_message(message):
     sender_id = message["from"]
