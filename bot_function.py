@@ -221,6 +221,7 @@ def handle_message(message):
                 send_message(sender_id, "😊 شكرًا لك على استخدام نظامنا!")
                 send_message(sender_id, "🔙 Returning to the start.")
                 module.update_session_stage(sender_id, "start")
+                send_ar_en_buttons(sender_id)
              else:
                 send_message(sender_id, "😊 Thank you for using our system!")
              module.update_session_stage(sender_id, "start")  # ✅ إعادة تعيين الجلسة
