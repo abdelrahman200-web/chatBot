@@ -27,13 +27,18 @@ def webhook():
             for entry in data.get("entry", []):
                 for change in entry.get("changes", []):
                     messages = change.get("value", {}).get("messages", [])
-                    if messages:  # تأكد أن القائمة ليست فارغة
-                         message = messages[0]  # احصل على أول رسالة فقط
-                    else:
-                     return "No messages received", 200  # استجابة آمنة إذا لم تكن هناك رسائل
-                    if message:
+                    if messages:  # إذا كانت هناك رسائل
+                        message = messages[0]  # احصل على أول رسالة فقط
                         bot.handle_message(message)  # معالجة الرسالة الواردة
+                    else:
+                        # إذا لم تكن هناك رسائل في القائمة
+                        return "No messages received", 200
+        # إذا لم يتم استيفاء شرط "whatsapp_business_account"
         return "EVENT_RECEIVED", 200
+
+    # إذا لم تكن الطريقة GET أو POST
+    return "Method not allowed", 405
+
 
 @app.route('/main', methods=['GET'])
 def main():
