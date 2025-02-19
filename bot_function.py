@@ -83,7 +83,10 @@ def handle_message(message):
                 send_return_button(sender_id)
                 module.update_session_stage(sender_id, "category_selection")
             elif choice == "error_codes":
-                send_error_codes(sender_id)
+                if module.get_user_language(sender_id)=="arabic":
+                   send_message(sender_id, " .الرجاء كتابة كود/رمز المشكلة")
+                else:
+                   send_message(sender_id, " Please enter the problem code.")
                 send_return_button(sender_id)
                 module.update_session_stage(sender_id, "error_selection")
             elif choice == "return_to_start":
@@ -102,8 +105,8 @@ def handle_message(message):
            send_return_button(sender_id)
 
     elif session_stage == "error_selection":
-     if message.get("interactive") and message["interactive"].get("list_reply"):
-        error_code = message["interactive"]["list_reply"].get("id")
+     if text:  # ✅ التأكد من أن المستخدم أدخل نصًا
+        error_code = text.strip().upper()  # ✅ تحويل النص إلى أحرف كبيرة
 
         # ✅ جلب لغة المستخدم
         lan = module.get_user_language(sender_id)
@@ -127,9 +130,7 @@ def handle_message(message):
             module.update_session_stage(sender_id, "start")
             send_ar_en_buttons(sender_id)  # إعادة اختيار اللغة
      else:
-        send_message(sender_id, "⚠️ خطأ في الإدخال / Input error")
-        send_error_codes(sender_id)
-        send_return_button(sender_id)
+        send_message(sender_id, "⚠️ خطأ في الإدخال. يرجى كتابة رمز المشكلة بالأحرف الكبيرة.")
 
 
     elif session_stage == "category_selection":
