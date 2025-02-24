@@ -18,6 +18,17 @@ def update_user_region(phone_number, region_name):
     connection.commit()
     connection.close()
 
+def get_user_region(phone_number):
+    """إرجاع اسم المنطقة الخاصة بالمستخدم."""
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    sql = "SELECT region_name FROM users WHERE phone_number = ?"
+    cursor.execute(sql, (phone_number,))
+    row = cursor.fetchone()
+    connection.close()
+
+    return row["region_name"] if row and row["region_name"] else None  # ✅ إرجاع اسم المنطقة أو None إذا لم يكن مسجلاً
+
 def insert_user(phone_number):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -201,46 +212,17 @@ def get_all_users():
 # تسجيل مستخدم جديد
 def register_user(username, password):
     connection = get_db_connection()
-    cursor = connection.cursor()
-
-    # 🔐 Encrypt password & decode to UTF-8 before storing
-    password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
+    cursor = connection.cursor()    
     try:
         sql = "INSERT INTO admin (username, password_hash) VALUES (?, ?)"
-        cursor.execute(sql, (username, password_hash))
+        cursor.execute(sql, (username, password))
         connection.commit()
         connection.close()
         return True
     except sqlite3.IntegrityError:
         connection.close()
         return False  # Handle duplicate username case properly
-    
-    #تسجيل دخول المستخدم
-def login_user(username, password):
-    connection = get_db_connection()
-    connection.row_factory = sqlite3.Row  # Enables dictionary-like access
-    cursor = connection.cursor()
-    
-    sql = "SELECT * FROM admin WHERE username = ?"
-    cursor.execute(sql, (username,))
-    
-    user = cursor.fetchone()
-    connection.close()
-
-    # ✅ Check if user exists before accessing its data
-    if user is None:
-        return False
-
-    # ✅ Password hash should already be a string, so remove extra encoding
-    stored_hashed_password = user["password_hash"]  
-
-    if bcrypt.checkpw(password.encode("utf-8"), stored_hashed_password.encode("utf-8")):
-        return True
-
-    return False
-
-# لتخزين تفاعل المستخدم
+    # لتخزين تفاعل المستخدم
 def log_interaction(user_id, category_id=None, issue_id=None, message=""):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -425,9 +407,9 @@ def get_regions():
     connection.close()
     return [{"id": str(r["id"]), "title": r["name"][:24]} for r in regions]
 
-SESSION_TIMEOUT = 1  # عدد الدقائق قبل انتهاء الجلسة
 def has_session_expired(user_phone):
     """التحقق مما إذا كانت الجلسة قد انتهت بسبب عدم النشاط"""
+    SESSION_TIMEOUT = 1  # عدد الدقائق قبل انتهاء الجلسة
     connection = get_db_connection()
     cursor = connection.cursor()
     
@@ -452,3 +434,41 @@ def has_session_expired(user_phone):
             return True  # ✅ الجلسة انتهت
 
     return False  # ✅ الجلسة لا تزال نشطة
+
+
+# ✅ جلب جميع المشرفين
+def get_all_admins():
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM admin")
+    admins = cursor.fetchall()
+    connection.close()
+    return admins  # قائمة بالمشرفين
+# ✅ إضافة مشرف جديد
+def add_admin(username, password):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("INSERT INTO admin (username, password_hash) VALUES (?, ?)", (username, password))
+        connection.commit()
+        success = True
+    except sqlite3.IntegrityError:
+        success = False  # اسم المستخدم موجود مسبقًا
+    connection.close()
+    return success
+
+# ✅ تحديث كلمة المرور لمشرف
+def update_admin_password(admin_id, new_password):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("UPDATE admin SET password_hash = ? WHERE username = ?", (new_password, admin_id))
+    connection.commit()
+    connection.close()
+
+# ✅ حذف مشرف
+def delete_admin(admin_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM admin WHERE username = ?", (admin_id,))
+    connection.commit()
+    connection.close()

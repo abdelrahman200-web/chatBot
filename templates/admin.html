@@ -1,0 +1,47 @@
+{% extends 'nav_bar.html' %}
+{% block title %}إدارة المسؤولين | WhatsApp Bot{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="../static/admin.css">
+<div class="container">
+    <h2>🔐 إدارة المسؤولين</h2>
+
+    <!-- ✅ إضافة مشرف جديد -->
+    <h3>➕ إضافة مشرف جديد</h3>
+    <form action="/add_admin" method="POST">
+        <input type="text" name="username" placeholder="اسم المستخدم" required>
+        <input type="password" name="password" placeholder="كلمة المرور" required>
+        <button type="submit">إضافة</button>
+    </form>
+
+    <h3>📋 قائمة المشرفين</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>🔹 اسم المستخدم</th>
+                <th>👤 password</th>
+                <th>⚙️ الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for admin in admins %}
+            <tr>
+                <td>{{ admin.username }}</td>
+                <td>{{ admin.password_hash }}</td>
+                <td>
+                    <!-- ✅ تحديث كلمة المرور -->
+                    <form action="/update_admin/{{ admin.username }}" method="POST" class="inline-form">
+                        <input type="password" name="new_password" placeholder="كلمة المرور الجديدة" required>
+                        <button type="submit">🔄 تحديث</button>
+                    </form>
+
+                    <!-- ✅ حذف المشرف -->
+                    <form action="/delete_admin/{{ admin.username }}" method="POST" class="inline-form">
+                        <button type="submit" class="delete-btn" onclick="return confirm('⚠️ هل أنت متأكد؟')">🗑️ حذف</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

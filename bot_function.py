@@ -2,7 +2,7 @@ import requests
 import os
 import module as module
 import Statistics_function as Statistics
-WHATSAPP_TOKEN="EAAPZCAhZAKUeABO3RrffX7mtExedXflmYMRPKzj8d0rdu7VURiDczUO2JaZC0ARSO9vL8i9UructoO6oec4l5ilBJ3BZCxGkAOrf6Gk9w2K5aAqRbyBBoqps5BX0niuR6UgDNIrvirOp48fWKefb3rTAWB1C7t9DVElXW5GoXg4fMLuZBr0OJAAXQJnbDIYEn0ZBxD1ReA3AiGXwiqtddGZCbm1crwZD"
+WHATSAPP_TOKEN="EAAPZCAhZAKUeABO4MHQ6qmg5FmS8w3zbtedPqDdZA3ZAQZCMydB582JsMWSTZC7ZBqZADhpzUdOVFdeBk1UQZAXbGaoS9HBz7UNMR1dciAPZAow8TogSQaBEvhD3RfYSUz1ZAxh6dMqftLqgPj4I5WGg7OMgnGTZBlUZBZAVSrYYwrCpm9LaguVnPUWDy4jVaRJbj9CRap4gZDZD"
 PHONE_NUMBER_ID="556436610884697"
 VERIFY_TOKEN="1966820c6ab65959244fdc849247dd74f40ba0f632d0b19987ae2bdf292e4810"
 
@@ -77,13 +77,22 @@ def handle_message(message):
             choice = message["interactive"]["button_reply"]["id"]
             if choice == "safety_instructions":
                 send_safety_instructions(sender_id)
+                region_name =  module.get_user_region(sender_id)
+                country_name = Statistics.get_country_from_phone(sender_id)  # ✅ جلب الدولة  
+                Statistics.insert_interaction(sender_id, "Safety Instructions", request_type="safety" , region=region_name , country=country_name)
                 module.update_session_stage(sender_id, "start")
             elif choice == "work_instructions":
                 send_category_list(sender_id)
                 send_return_button(sender_id)
+                region_name =  module.get_user_region(sender_id)
+                country_name = Statistics.get_country_from_phone(sender_id)  # ✅ جلب الدولة  
+                Statistics.insert_interaction(sender_id, "Work Instructions", request_type="work" , region=region_name , country=country_name)
                 module.update_session_stage(sender_id, "category_selection")
             elif choice == "error_codes":
                 if module.get_user_language(sender_id)=="arabic":
+                   region_name =  module.get_user_region(sender_id)
+                   country_name = Statistics.get_country_from_phone(sender_id)  # ✅ جلب الدولة  
+                   Statistics.insert_interaction(sender_id, "Vitronic Error Codes", request_type="error_codes" , region=region_name , country=country_name)
                    send_message(sender_id, " .الرجاء كتابة كود/رمز المشكلة")
                 else:
                    send_message(sender_id, " Please enter the problem code.")
@@ -116,9 +125,15 @@ def handle_message(message):
 
         if error_action:
             action_text = error_action["action_ar"] if lan == "arabic" else error_action["action_en"]
-            send_message(sender_id, f"🔍 *الإجراء المتبع لحل المشكلة {error_code}:*\n\n{action_text}")
+            if lan == "arabic":
+             send_message(sender_id, f"🔍 *الإجراء المتبع لحل المشكلة {error_code}:*\n\n{action_text}")
+            else:
+               send_message(sender_id, f"🔍 *Procedure to solve the problem {error_code}:*\n\n{action_text}")
         else:
-            send_message(sender_id, "⚠️ لم يتم العثور على إجراء لهذا الرمز.")
+            if lan == "arabic":
+             send_message(sender_id, "⚠️ لم يتم العثور على إجراء لهذا الرمز.")
+            else:
+               send_message(sender_id, "⚠️ No action found for this symbol.")
 
         send_message(sender_id, "🔙 Returning to the start.")
         module.update_session_stage(sender_id, "start")  # ✅ إعادة تعيين الجلسة بعد إرسال الحل
@@ -175,8 +190,9 @@ def handle_message(message):
         if not user_phone.startswith("+"):
          user_phone = "+" + user_phone
         # يجب ارسال الرقم في صورة string
-        country = Statistics.get_country_from_phone(user_phone)  # ✅ جلب الدولة من رقم الهاتف 
-        Statistics.insert_interaction(user_phone, text, category_id=category_id, issue_id=issue_id, country=country)
+        region_name =  module.get_user_region(user_phone) # ✅ جلب المنطقة من رقم الهاتف 
+        country_name = Statistics.get_country_from_phone(user_phone)  # ✅ جلب الدولة  
+        Statistics.insert_interaction(user_phone, text, category_id=category_id, issue_id=issue_id, country=country_name,region=region_name)
 
         issue_link = module.get_issue_link(issue_id)
      elif message["interactive"]["button_reply"]["id"] == 'return_to_start':

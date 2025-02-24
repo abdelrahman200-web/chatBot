@@ -1,17 +1,20 @@
-from flask import Flask,request, jsonify,redirect,url_for,render_template,session
+from flask import Flask,request, jsonify,redirect,url_for,render_template,session,flash
 import os
 import module as module
 import Statistics_function as Statistics
-import bcrypt 
 import bot_function as bot
-app=Flask(__name__)
+from flask_login import login_user, logout_user, login_required
+import login as log
 
-WHATSAPP_TOKEN="EAAPZCAhZAKUeABO3RrffX7mtExedXflmYMRPKzj8d0rdu7VURiDczUO2JaZC0ARSO9vL8i9UructoO6oec4l5ilBJ3BZCxGkAOrf6Gk9w2K5aAqRbyBBoqps5BX0niuR6UgDNIrvirOp48fWKefb3rTAWB1C7t9DVElXW5GoXg4fMLuZBr0OJAAXQJnbDIYEn0ZBxD1ReA3AiGXwiqtddGZCbm1crwZD"
+app=Flask(__name__)
+WHATSAPP_TOKEN="EAAPZCAhZAKUeABO4MHQ6qmg5FmS8w3zbtedPqDdZA3ZAQZCMydB582JsMWSTZC7ZBqZADhpzUdOVFdeBk1UQZAXbGaoS9HBz7UNMR1dciAPZAow8TogSQaBEvhD3RfYSUz1ZAxh6dMqftLqgPj4I5WGg7OMgnGTZBlUZBZAVSrYYwrCpm9LaguVnPUWDy4jVaRJbj9CRap4gZDZD"
 PHONE_NUMBER_ID="556436610884697"
 VERIFY_TOKEN="1966820c6ab65959244fdc849247dd74f40ba0f632d0b19987ae2bdf292e4810"
+app.secret_key = "1966820c6ab65959244fdc849247dd74f40ba0f632d0b19987ae2bdf292e4810"  # 🔐 استخدم مفتاحًا آمنًا للجلسات
+log.login_manager.init_app(app)  # تهيئة Flask-Login
 @app.route('/')
 def d():
-    return 'hello'
+    return render_template("login.html")
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':  # تحقق من Webhook
@@ -41,6 +44,7 @@ def webhook():
 
 
 @app.route('/main', methods=['GET'])
+@login_required
 def main():
     issues = module.get_All_issues()
     categories=module.get_All_category()
@@ -112,6 +116,7 @@ def remove_issue(issue_id):
 
 # ✅ جلب جميع المستخدمين
 @app.route('/users', methods=['GET'])
+@login_required
 def get_users():
     users = module.get_all_users()
     return render_template('user.html',users=users)
@@ -129,30 +134,14 @@ def register():
 
      if password != confirm_password:
          return jsonify({"message": "كلمتا المرور غير متطابقتين"}), 400
- 
-     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-     if module.register_user(username, hashed_password):
+     if module.register_user(username, password):
          return jsonify({"message": "تم تسجيل المستخدم بنجاح"}), 201
      else:
          return jsonify({"message": "اسم المستخدم موجود بالفعل"}), 400
     else:
      return jsonify({"message": "مفتاح الوصول غير صحيح"}), 404
 
-
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form.get('username')  # Corrected to request.form
-    password = request.form.get('password')
-
-    if not username or not password:
-        return jsonify({"message": "يرجى ملء جميع الحقول"}), 400
-
-    if module.login_user(username, password):
-        session['user'] = username  # Store user session
-        return redirect(url_for('main'))  # Redirect on successful login
-    
-    return jsonify({"message": "فشل تسجيل الدخول"}), 401  # Failed login
 
 @app.route('/add_error_code', methods=['POST'])
 def add_error_code_route():
@@ -198,15 +187,15 @@ def delete_region_route(region_id):
 @app.route('/register_page', methods=['GET'])
 def register_page():
     return render_template('signup.html')
-@app.route('/login_page', methods=['GET'])
-def login_page():
-    return render_template('login.html')
+
 @app.route('/error_code', methods=['GET'])
+@login_required
 def error_code():
     error=module.get_error_codes()
     return render_template('error_code.html',error_codes=error)
 
 @app.route('/regions', methods=['GET'])
+@login_required
 def get_regions():
     """إرجاع قائمة المناطق في JSON"""
     connection = module.get_db_connection()
@@ -218,6 +207,7 @@ def get_regions():
     return render_template('regions.html',regions=regions )
 #==================================== for Statistics ==========================================================
 @app.route('/stats', methods=['GET'])
+@login_required
 def get_statistics():
     stats = {
         "new_users_daily": Statistics.get_new_users_count("daily"),
@@ -227,11 +217,92 @@ def get_statistics():
         "category_requests": Statistics.get_category_request_count(),
         "issue_requests": Statistics.get_issue_request_count(),
         "top_country": Statistics.get_top_cities(),
-        "top_users": Statistics.get_top_users()
-    }
+        "top_users": Statistics.get_top_users(),
+        "top_regions": Statistics.get_top_regions(),
+        "most_requested_options": Statistics.get_most_requested_options() 
+    }    
+    return render_template('static.html', stats=stats)
+
+# 🔹 صفحة تسجيل الدخول
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    print("🔄 استقبلنا طلبًا على /login")
     
-    return render_template('static.html',stats=stats)
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        if not username or not password:
+            flash("❌ يرجى إدخال اسم المستخدم وكلمة المرور!", "danger")
+            return redirect(url_for("login"))
+
+        user = log.check_login(username, password)
+
+        if user:
+            login_user(user)  # ✅ تسجيل الدخول باستخدام Flask-Login
+            flash("✅ تسجيل دخول ناجح!", "success")
+            return redirect(request.args.get("next") or url_for("main"))  # ✅ إعادة توجيه بعد تسجيل الدخول
+        else:
+            flash("❌ اسم المستخدم أو كلمة المرور غير صحيحة!", "danger")
+            return redirect(url_for("login"))
+
+    return render_template("login.html")
+
+# 🔹 تسجيل الخروج
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("✅ تم تسجيل الخروج بنجاح!", "success")
+    return redirect(url_for("login"))
 #==============================================================================================================
+# ✅ عرض جميع المشرفين
+@app.route("/admin_panel")
+@login_required
+def admin_panel():
+    admins = module.get_all_admins()
+    return render_template("admin.html", admins=admins)
+
+# ✅ إضافة مشرف جديد
+@app.route("/add_admin", methods=["POST"])
+@login_required
+def add_admin():
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    if not username or not password:
+        flash("❌ يرجى إدخال اسم المستخدم وكلمة المرور!", "error")
+        return redirect(url_for("admin_panel"))
+
+    if module.add_admin(username, password):
+        flash("✅ تم إضافة المشرف بنجاح!", "success")
+    else:
+        flash("❌ اسم المستخدم موجود بالفعل!", "error")
+
+    return redirect(url_for("admin_panel"))
+
+# ✅ تحديث كلمة مرور مشرف
+@app.route("/update_admin/<int:admin_id>", methods=["POST"])
+@login_required
+def update_admin(admin_id):
+    new_password = request.form.get("new_password")
+
+    if not new_password:
+        flash("❌ يرجى إدخال كلمة المرور الجديدة!", "error")
+        return redirect(url_for("admin_panel"))
+
+    module.update_admin_password(admin_id, new_password)
+    flash("✅ تم تحديث كلمة المرور بنجاح!", "success")
+    return redirect(url_for("admin_panel"))
+
+
+# ✅ حذف مشرف
+@app.route("/delete_admin/<int:admin_id>", methods=["POST"])
+@login_required
+def delete_admin(admin_id):
+    module.delete_admin(admin_id)
+    flash("✅ تم حذف المشرف بنجاح!", "success")
+    return redirect(url_for("admin_panel"))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

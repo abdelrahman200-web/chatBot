@@ -2,62 +2,6 @@
 {% block title %}📊 إحصائيات البوت | WhatsApp Bot{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="../static/stats.css">
-<style>
-    /* 📌 تصميم صفحة الإحصائيات */
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
-    font-family: "Arial", sans-serif;
-}
-
-.title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #2c3e50;
-}
-
-/* 📊 تنسيق الكروت */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.stats-card {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.stats-card h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #2980b9;
-}
-
-.stats-card ul {
-    padding: 0;
-    list-style-type: none;
-}
-
-.stats-card ul li {
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
-}
-
-.stats-card ul li:last-child {
-    border-bottom: none;
-}
-
-/* 🌍 تنسيق الدول */
-.stats-card strong {
-    color: #16a085;
-}
-
-</style>
 <div class="container">
     <h2 class="title">📊 إحصائيات البوت</h2>
 
@@ -101,9 +45,39 @@
             <h3>📞 أكثر المستخدمين نشاطًا</h3>
             <ul>
                 {% for user in stats.top_users %}
-                <li><strong>{{ user[0] }}</strong> - {{ user[1] }} طلب</li>
+                <li>
+                    <strong>{{ user[0] }}</strong> - 
+                    📍 {{ user[1] }} -  <!-- ✅ عرض المنطقة -->
+                    {{ user[2] }} طلب
+                </li>
                 {% endfor %}
             </ul>
+        </div>
+        
+                <div class="stats-card">
+            <h3>📋 أكثر الخيارات طلبًا</h3>
+        <ul>
+         {% for option in stats.most_requested_options %}
+         <li>
+        {% if option[0] == "safety" %}
+            🔹 تعليمات السلامة - {{ option[1] }} طلب
+        {% elif option[0] == "work" %}
+            📂 تعليمات العمل - {{ option[1] }} طلب
+        {% elif option[0] == "error_codes" %}
+            ⚠️ رموز أخطاء فيترونيك - {{ option[1] }} طلب
+        {% endif %}
+          </li>
+         {% endfor %}
+        </ul>
+        </div>
+        <div class="stats-card">
+            <h3>📍 أكثر الأماكن تفاعلًا</h3>
+        <ul>
+             {% for region in stats.top_regions %}
+         <li>📍 {{ region[0] }} - {{ region[1] }} طلب</li>
+             {% endfor %}
+        </ul>
+
         </div>
     </div>
 </div>

@@ -1,0 +1,98 @@
+/* تحسين الشكل العام للصفحة */
+body {
+    font-family: 'Cairo', sans-serif;
+    background-color: #f4f7f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* تحسين شكل الحاوية الرئيسية */
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* تنسيق العنوان الرئيسي */
+.title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* ✅ تصميم الشبكة للعناصر */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* ✅ تحسين شكل بطاقات الإحصائيات */
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* ✅ إضافة تأثير عند تمرير الفأرة */
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ تنسيق العناوين الفرعية */
+.stats-card h3 {
+    color: #34495e;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* ✅ تنسيق القوائم داخل البطاقات */
+.stats-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.stats-card li {
+    background: #ecf0f1;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* ✅ تنسيق الجداول */
+.stats-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.stats-card th, .stats-card td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.stats-card th {
+    background-color: #3498db;
+    color: white;
+}
+
+.stats-card td {
+    background-color: #ecf0f1;
+}
+
+/* ✅ تحسين تنسيق الأرقام */
+.stats-card p {
+    font-size: 16px;
+    color: #2c3e50;
+    padding: 5px 0;
+}
