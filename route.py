@@ -7,8 +7,8 @@ from flask_login import login_user, logout_user, login_required
 import login as log
 
 app=Flask(__name__)
-WHATSAPP_TOKEN="EAAJHutDwQVUBO2zVoD8I37wUGnkJ8Owa6dIZCcgBPDZBEQE6MP170qGaD9Cm531WtA6JbzLNJXEQl022PIPQOdk3UHkKeyrUT8GB6IP602wElz0K5pQZB69yQ3hXZBQooU556ZCDUn7ZACPBFcc31cOin3o0fF9SMtdEAjS2mydjFUgzoC3ZB8OAUkrGfLolnKnjAZDZD"
-PHONE_NUMBER_ID="556436610884697"
+WHATSAPP_TOKEN="EAAIfUtZBlkpEBO8LldTgRzFZBG0OIvkcrVsFZAqvdmjhRTA3mUaanaxYa5SHJK8HSNf6ZC0tV32kOJyp3BjpU6RxL8HqGym0t8SoiIf4tzK3X7PTBXmevkStog8igu9xvk30DGlgKZBQTc8aADB6HnCFErMakP04CAYH0dNqtNkM2DHXGJkpzZB96QiwzkZAq4TmgZDZD"
+PHONE_NUMBER_ID="560613013806982"
 VERIFY_TOKEN="1966820c6ab65959244fdc849247dd74f40ba0f632d0b19987ae2bdf292e4810"
 app.secret_key = "1966820c6ab65959244fdc849247dd74f40ba0f632d0b19987ae2bdf292e4810"  # 🔐 استخدم مفتاحًا آمنًا للجلسات
 log.login_manager.init_app(app)  # تهيئة Flask-Login
